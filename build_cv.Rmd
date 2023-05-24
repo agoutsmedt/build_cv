@@ -1,6 +1,6 @@
 ---
-name: Goutsmedt
-surname: Aurélien
+name: Aurélien
+surname: GOUTSMEDT
 headcolor: 864c58  
 # phone: +33 664202467
 www: aurelien-goutsmedt.com
@@ -107,7 +107,7 @@ if(cnrs_rank == TRUE){
 peer_review <- publications %>% 
   filter(type == "published") %>% 
   { if(cnrs_rank == TRUE) left_join(., read_sheet(data_path, sheet = "CNRS_ranking"), by = "journal") %>% 
-      mutate(reference = paste0(reference, cnrs_message, rank, ")" )) } %>% 
+      mutate(reference = paste0(reference, cnrs_message, rank, ")" )) else . } %>% 
   pull(reference)
 
 cat(paste(peer_review), sep = "\n\n")
@@ -130,7 +130,7 @@ if(cv == "long"){
   if(language == "en"){
     cat("## Other publications and working papers\n")
   } else {
-    cat("## Autre publications et documents de travail\n")
+    cat("## Autres publications et documents de travail\n")
   }
   
   other <- publications %>% 
@@ -171,11 +171,14 @@ cat(paste(packages), sep = "\n\n")
 \endgroup
 \leavevmode\newline
 
+
 ```{r teaching-title, results='asis'}
+if(cv == "long") cat("\\newpage \n\n")
+
 if(language == "en"){
   cat("# Teaching")
 } else {
-  cat("# Enseignement")
+  cat("# Enseignements")
 }
 ```
 
@@ -187,6 +190,7 @@ read_sheet(data_path, sheet = "Teaching") %>%
   detailed_entries(what = Course,
                    when = Year,
                    where = Content,
+                   why = Details,
                    .protect = FALSE)
 ```
 
@@ -307,7 +311,7 @@ if(cv == "long"){
   if(language == "en"){
     cat("## International Conference with presentation accepted by a scientific committee\n")
   } else {
-    cat("## Conférence internationale avec présentation acceptée par un comité scientifique\n")
+    cat("## Conférences internationales avec présentation acceptée par un comité scientifique\n")
   }
   
   conferences_presentation <- conferences %>% 
@@ -335,7 +339,7 @@ if(cv == "long"){
   if(language == "en"){
     cat("## Invitation to seminars\n")
   } else {
-    cat("## Invitation à des séminaires de recherches\n")
+    cat("## Invitation à présenter dans des séminaires\n")
   }
   
     seminars <- conferences %>% 

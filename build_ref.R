@@ -5,6 +5,7 @@ references <- bib2df("bibliography.bib") %>%
   janitor::clean_names() %>% 
   mutate(journal = ifelse(category == "PHDTHESIS", school, journal),
          journal = ifelse(category == "MISC", "R package", journal),
+         journal = ifelse(category == "BOOK", paste0(address, ": ", publisher), journal),
          doi = ifelse(category == "MISC", annotation, doi),
          annotation = ifelse(category == "MISC", NA, annotation),
          type = str_extract(keywords, "ongoing-pub|published|other-pub|invited-paper|packages"),
@@ -46,7 +47,7 @@ mutate(author = ifelse(rownumber > 1 & lang == "en",
                           paste0(reference, ", ", info_pub, "."),
                           paste0(reference, ".")),
        reference = ifelse(! is.na(preprint),
-                          paste0(reference, " (", preprint, ")"),
+                          paste0(reference, " [", preprint, "]"),
                           reference)) %>% 
   select(-c(title_linked, preprint, rownumber, info_pub))
 
