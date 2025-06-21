@@ -1,5 +1,5 @@
-library(bib2df)
-library(googlesheets4)
+pacman::p_load(bib2df,
+               googlesheets4)
 
 references <- bib2df("bibliography.bib") %>% 
   janitor::clean_names() %>% 

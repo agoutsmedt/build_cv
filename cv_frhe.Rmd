@@ -81,10 +81,6 @@ read_sheet(data_path, sheet = "Grants") %>%
                    .protect = FALSE)
 ```
 
-```{r, results='asis'}
-if(cv == "long") cat("\\newpage \n\n")
-```
-
 # Publications 
 
 \begingroup
@@ -175,7 +171,7 @@ cat(paste(packages), sep = "\n\n")
 
 
 ```{r teaching-title, results='asis'}
-# if(cv == "long") cat("\\newpage \n\n")
+if(cv == "long") cat("\\newpage \n\n")
 
 if(language == "en"){
   cat("# Teaching")
@@ -194,25 +190,6 @@ read_sheet(data_path, sheet = "Teaching") %>%
                    where = Content,
                    why = Details,
                    .protect = FALSE)
-```
-
-```{r skills-title, results='asis'}
-if(language == "en"){
-  cat("# Personal Skills")
-} else {
-  cat("# Compétences")
-}
-```
-
-
-```{r skills, results='asis'}
-options(Encoding="UTF-8")
-read_sheet(data_path, sheet = "Skills") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
-  brief_entries(when = Category,
-                what = details,
-                .protect = FALSE)
 ```
 
 ```{r activities, results='asis'}
@@ -273,84 +250,4 @@ read_sheet(data_path, sheet = "Activities") %>%
                    .protect = FALSE)
 ```
 
-\begingroup
-\setlength{\parindent}{-0.5in}
-\setlength{\leftskip}{0.5in}
-
-```{r conferences, results='asis'}
-if(language == "en"){
-  cat("# Presentations in conferences, workshops and seminars\n")
-} else {
-  cat("# Présentations en conférences, _workshops_ et séminaires\n")
-}
-
-conferences <- read_sheet(data_path, sheet = "Conferences") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else .} %>% 
-  mutate(sort_date = str_c("1 ", Date),
-         sort_date = lubridate::dmy(sort_date)) %>% 
-  arrange(desc(sort_date)) %>% 
-  mutate(reference = str_c(Title, Conference, Location, Date, sep = ", ") %>% 
-             str_c("."))
-
-
-if(language == "en"){
-  cat("## Special sessions organised in international conferences\n")
-} else {
-  cat("## Sessions spéciales organisées dans des conférences internationales\n")
-}
-
-special_session <- conferences %>% 
-  filter(type == "special_session") %>% 
-  pull(reference)
-
-cat(paste(special_session), sep = "\n\n")
-
-if(cv == "long"){
-  
-  cat("\n")
-  
-  if(language == "en"){
-    cat("## International Conference with presentation accepted by a scientific committee\n")
-  } else {
-    cat("## Conférences internationales avec présentation acceptée par un comité scientifique\n")
-  }
-  
-  conferences_presentation <- conferences %>% 
-    filter(type == "conference") %>% 
-    pull(reference)
-  
-  cat(paste(conferences_presentation), sep = "\n\n")
-  
-  cat("\n")
-  
-  if(language == "en"){
-    cat("## Invitation to workshops\n")
-  } else {
-    cat("## Invitation à des _workshops_ thématiques\n")
-  }
-  
-  workshops <- conferences %>% 
-    filter(type == "workshop") %>% 
-    pull(reference)
-  
-  cat(paste(workshops), sep = "\n\n")
-  
-  cat("\n")
-  
-  if(language == "en"){
-    cat("## Invitation to seminars\n")
-  } else {
-    cat("## Invitation à présenter dans des séminaires\n")
-  }
-  
-    seminars <- conferences %>% 
-    filter(type == "seminar") %>% 
-    pull(reference)
-  
-  cat(paste(seminars), sep = "\n\n")
-}
-```
-
-\endgroup
 \leavevmode\newline

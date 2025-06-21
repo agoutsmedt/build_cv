@@ -10,3 +10,8 @@ for(language in c("fr", "en")){
   }
 }
 
+# Special CV: FRHE
+language <- "fr"
+cv <- "short"
+rmarkdown::render(here::here("cv_frhe.Rmd"),
+                  output_file = here::here(glue::glue("cv_goutsmedt_frhe.pdf")))
