@@ -32,14 +32,18 @@ if(language == "en"){
 ```
 
 ```{r position}
-readWorkbook(wb, sheet = "Positions") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
-  detailed_entries(what = Position,
-                   when = Year,
-                   where = Institution, 
-                   with = Location, 
-                   why = Details) 
+readWorkbook(wb, sheet = "Positions") %>%
+  filter(lang == language) %>%
+  {
+    if (cv == "short") filter(., cv_type == cv) else .
+  } %>%
+  detailed_entries(
+    what = Position,
+    when = Year,
+    where = Institution,
+    with = Location,
+    why = Details
+  ) 
 ```
 
 ```{r, results='asis'}
@@ -51,13 +55,18 @@ if(language == "en"){
 ```
 
 ```{r education}
-readWorkbook(wb, sheet = "Education") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
-  detailed_entries(what = Degree,
-                          when = Year,
-                          where = Institution, 
-                          why = Details)
+readWorkbook(wb, sheet = "Education") %>%
+  filter(lang == language) %>%
+  {
+    if (cv == "short") filter(., cv_type == cv) else .
+  } %>%
+  detailed_entries(
+    what = Degree,
+    when = Year,
+    where = Institution,
+    with = Location,
+    why = Details
+  )
 ```
 
 ```{r grants-title, results='asis'}
@@ -69,16 +78,20 @@ if(language == "en"){
 ```
 
 ```{r grants}
-options(Encoding="UTF-8")
-readWorkbook(wb, sheet = "Grants") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
-  detailed_entries(what = Grants,
-                   when = Year,
-                   where = Project, 
-                   with = Amount, 
-                   why = Details,
-                   .protect = FALSE)
+options(Encoding = "UTF-8")
+readWorkbook(wb, sheet = "Grants") %>%
+  filter(lang == language) %>%
+  {
+    if (cv == "short") filter(., cv_type == cv) else .
+  } %>%
+  detailed_entries(
+    what = Grants,
+    when = Year,
+    where = Project,
+    with = Amount,
+    why = Details,
+    .protect = FALSE
+  )
 ```
 
 ```{r, results='asis'}
@@ -92,81 +105,93 @@ if(cv == "long") cat("\\newpage \n\n")
 \setlength{\leftskip}{0.5in}
 
 ```{r papers, results='asis'}
-
-if(language == "en"){
+if (language == "en") {
   cat("## Publications in peer-reviewed journals \n")
 } else {
   cat("## Publications dans des journaux à comité de lecture \n")
 }
-publications <- readWorkbook(wb, sheet = "Publications") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else .}
+publications <- readWorkbook(wb, sheet = "Publications") %>%
+  filter(lang == language) %>%
+  {
+    if (cv == "short") filter(., cv_type == cv) else .
+  }
 
-if(cnrs_rank == TRUE){
- if(language == "en") cnrs_message <- " (CNRS ranking June 2020, Rank "
- if(language == "fr") cnrs_message <- " (class. CNRS juin 2020, rang "
-}  
-peer_review <- publications %>% 
-  filter(type == "published") %>% 
-  { if(cnrs_rank == TRUE) left_join(., readWorkbook(wb,sheet = "CNRS_ranking"), by = "journal") %>% 
-      mutate(reference = paste0(reference, cnrs_message, rank, ")" )) else . } %>% 
+if (cnrs_rank == TRUE) {
+  if (language == "en") {
+    cnrs_message <- " (CNRS ranking June 2020, Rank "
+  }
+  if (language == "fr") cnrs_message <- " (class. CNRS juin 2020, rang "
+}
+peer_review <- publications %>%
+  filter(type == "published") %>%
+  {
+    if (cnrs_rank == TRUE) {
+      left_join(
+        .,
+        readWorkbook(wb,sheet = "CNRS_ranking"),
+        by = "journal"
+      ) %>%
+        mutate(reference = paste0(reference, cnrs_message, rank, ")"))
+    } else {
+      .
+    }
+  } %>%
   pull(reference)
 
 cat(paste(peer_review), sep = "\n\n")
 
-if(cv == "long"){
+if (cv == "long") {
   cat("\n")
-  if(language == "en"){
+  if (language == "en") {
     cat("## Invited contributions in special issues\n")
   } else {
     cat("## Contributions invitées pour des numéros spéciaux\n")
   }
-  
-  invited <- publications %>% 
-    filter(type == "invited-paper") %>% 
+
+  invited <- publications %>%
+    filter(type == "invited-paper") %>%
     pull(reference)
-  
+
   cat(paste(invited), sep = "\n\n")
   cat("\n")
-  
-  if(language == "en"){
+
+  if (language == "en") {
     cat("## Other publications and working papers\n")
   } else {
     cat("## Autres publications et documents de travail\n")
   }
-  
-  other <- publications %>% 
-    filter(type == "other-pub") %>% 
+
+  other <- publications %>%
+    filter(type == "other-pub") %>%
     pull(reference)
-  
+
   cat(paste(other), sep = "\n\n")
   cat("\n\n")
 
+  if (language == "en") {
+    cat("## Work in progress\n")
+  } else {
+    cat("## Travaux en cours\n")
+  }
 
-if(language == "en"){
-  cat("## Work in progress\n")
-} else {
-  cat("## Travaux en cours\n")
-}
+  work_in_progress <- publications %>%
+    filter(type == "ongoing-pub") %>%
+    pull(reference)
 
-work_in_progress <- publications %>% 
-  filter(type == "ongoing-pub") %>% 
-  pull(reference)
-  
-cat(paste(work_in_progress), sep = "\n\n")
-cat("\n")
+  cat(paste(work_in_progress), sep = "\n\n")
+  cat("\n")
 
-if(language == "en"){
-  cat("## Software: R Packages\n")
-} else {
-  cat("## Logiciels: Paquets R\n")
-}
+  if (language == "en") {
+    cat("## Software: R Packages\n")
+  } else {
+    cat("## Logiciels: Paquets R\n")
+  }
 
-packages <- publications %>% 
-  filter(type == "packages") %>% 
-  pull(reference)
-  
-cat(paste(packages), sep = "\n\n")
+  packages <- publications %>%
+    filter(type == "packages") %>%
+    pull(reference)
+
+  cat(paste(packages), sep = "\n\n")
 }
 ```
 
@@ -186,7 +211,7 @@ if(language == "en"){
 
 ```{r teaching}
 options(Encoding="UTF-8")
-readWorkbook(wb, sheet = "Teaching") %>% 
+readWorkbook(wb,sheet = "Teaching") %>% 
   filter(lang == language) %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
   detailed_entries(what = Course,
@@ -207,7 +232,7 @@ if(language == "en"){
 
 ```{r skills, results='asis'}
 options(Encoding="UTF-8")
-readWorkbook(wb, sheet = "Skills") %>% 
+readWorkbook(wb,sheet = "Skills") %>% 
   filter(lang == language) %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
   brief_entries(when = Category,
@@ -229,7 +254,7 @@ if(language == "en"){
 }
 
 options(Encoding="UTF-8")
-readWorkbook(wb, sheet = "Activities")  %>% 
+readWorkbook(wb,sheet = "Activities") %>% 
   filter(lang == language,
          activity_type == "revues") %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
@@ -245,7 +270,7 @@ if(language == "en"){
 }
 
 options(Encoding="UTF-8")
-readWorkbook(wb, sheet = "Activities") %>% 
+readWorkbook(wb,sheet = "Activities") %>% 
   filter(lang == language,
          activity_type == "conferences") %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
@@ -262,7 +287,7 @@ if(language == "en"){
 }
 
 options(Encoding="UTF-8")
-readWorkbook(wb, sheet = "Activities") %>% 
+readWorkbook(wb,sheet = "Activities") %>% 
   filter(lang == language,
          activity_type == "elective") %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
@@ -284,7 +309,7 @@ if(language == "en"){
   cat("# Présentations en conférences, _workshops_ et séminaires\n")
 }
 
-conferences <- readWorkbook(wb, sheet = "Conferences") %>% 
+conferences <- readWorkbook(wb,sheet = "Conferences") %>% 
   filter(lang == language) %>% 
   { if(cv == "short") filter(., cv_type == cv) else .} %>% 
   mutate(sort_date = str_c("1 ", Date),
