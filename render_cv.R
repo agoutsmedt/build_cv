@@ -14,6 +14,17 @@ for (language in c("fr", "en")) {
   }
 }
 
+for (language in c("fr", "en")) {
+  cv <- "long"
+  rmarkdown::render(
+    here::here("build_cv.Rmd"),
+    output_file = here::here(
+      "~/r_github_projects/quarto_website/assets",
+      glue::glue("cv_goutsmedt_{language}.pdf")
+    )
+  )
+}
+
 # for (language in c("fr", "en")) {
 #   for (cv in c("short", "long")) {
 #     quarto::quarto_render(
