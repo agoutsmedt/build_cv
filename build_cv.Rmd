@@ -33,13 +33,31 @@ if(language == "en"){
 
 ```{r position}
 readWorkbook(wb, sheet = "Positions") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
+  filter(lang == language, cv_type == "short") %>% 
+#  { if(cv == "short") filter(., cv_type == cv) else . } %>%
   detailed_entries(what = Position,
                    when = Year,
                    where = Institution, 
                    with = Location, 
                    why = Details) 
+```
+
+```{r, results='asis'}
+if(cv == "long"){
+if(language == "en"){
+  cat("# Visiting\n")
+} else {
+  cat("# Séjours de recherche\n")
+}
+
+readWorkbook(wb, sheet = "Positions") %>% 
+  filter(lang == language, cv_type == "long") %>% 
+  detailed_entries(what = Institution,
+                   when = Year,
+                   with = Location, 
+                   why = Details) 
+
+}
 ```
 
 ```{r, results='asis'}
@@ -93,6 +111,23 @@ if(cv == "long") cat("\\newpage \n\n")
 
 ```{r papers, results='asis'}
 
+publications <- readWorkbook(wb, sheet = "Publications") %>% 
+  filter(lang == language) %>% 
+  { if(cv == "short") filter(., cv_type == cv) else .}
+
+if(language == "en"){
+  cat("## Books \n")
+} else {
+  cat("## Ouvrages \n")
+}
+
+books <- publications %>% 
+  filter(category == "BOOK" & type == "published") %>% 
+  pull(reference)
+
+cat(paste(books), sep = "\n\n")
+cat("\n")
+
 if(language == "en"){
   cat("## Publications in peer-reviewed journals \n")
 } else {
@@ -107,7 +142,7 @@ if(cnrs_rank == TRUE){
  if(language == "fr") cnrs_message <- " (class. CNRS juin 2020, rang "
 }  
 peer_review <- publications %>% 
-  filter(type == "published") %>% 
+  filter(type == "published"  & category != "BOOK") %>% 
   { if(cnrs_rank == TRUE) left_join(., readWorkbook(wb,sheet = "CNRS_ranking"), by = "journal") %>% 
       mutate(reference = paste0(reference, cnrs_message, rank, ")" )) else . } %>% 
   pull(reference)
@@ -214,6 +249,8 @@ readWorkbook(wb, sheet = "Skills") %>%
                 what = details,
                 .protect = FALSE)
 ```
+
+\newpage
 
 ```{r activities, results='asis'}
 if(language == "en"){

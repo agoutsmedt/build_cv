@@ -1,7 +1,7 @@
 pacman::p_load(tidyverse, openxlsx, here)
 xlsx_path <- here::here("CV_data.xlsx")
 
-data_path <- "https://docs.google.com/spreadsheets/d/13riQiHaGL4pte_lobGgRBAO2t_XeQ1wbVOBa-ZpId4s/edit?usp=sharing"
+# data_path <- "https://docs.google.com/spreadsheets/d/13riQiHaGL4pte_lobGgRBAO2t_XeQ1wbVOBa-ZpId4s/edit?usp=sharing"
 source("build_ref.R")
 
 cnrs_rank <- FALSE

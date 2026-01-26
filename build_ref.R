@@ -7,7 +7,7 @@ references <- bib2df("bibliography.bib") %>%
     journal = ifelse(category == "PHDTHESIS", school, journal),
     journal = ifelse(
       category %in% "BOOK",
-      paste0(address, ": ", publisher),
+      paste0(location, ": ", publisher),
       journal
     ),
     journal = ifelse(category == "SOFTWARE", "R package", journal),
@@ -63,7 +63,7 @@ references <- bib2df("bibliography.bib") %>%
       title
     ),
     preprint = ifelse(
-      annotation != "" & ! category %in% c("SOFTWARE", "DATASET"),
+      annotation != "" & !category %in% c("SOFTWARE", "DATASET"),
       paste0("\\href{", annotation, "}{Preprint}"),
       NA
     )
