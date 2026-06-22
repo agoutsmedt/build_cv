@@ -14,12 +14,12 @@ references <- bib2df("bibliography.bib") %>%
     journal = ifelse(category == "DATASET", publisher, journal),
     year = str_extract(date, "^\\d+") |> as.integer(),
     doi = ifelse(category == "SOFTWARE", annotation, doi),
+    doi = ifelse(str_detect(doi, "\\d+"), paste0("https://doi.org/", doi), doi),
     type = str_extract(
       keywords,
-      "ongoing-pub|published|other-pub|invited-paper|packages"
+      "ongoing-pub|published|other-pub|invited-paper|packages",
     ),
-    cv_type = str_extract(keywords, "short-cv|long-cv") %>%
-      str_remove("-cv")
+    cv_type = str_extract(keywords, "short|long")
   ) %>%
   select(
     category,

@@ -15,6 +15,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(vitae)
+wb <- loadWorkbook(xlsx_path)
 ```
 
 ---
@@ -31,9 +32,9 @@ if(language == "en"){
 ```
 
 ```{r position}
-read_sheet(data_path, sheet = "Positions") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
+readWorkbook(wb, sheet = "Positions") %>% 
+  filter(lang == language, cv_type == "short") %>% 
+#  { if(cv == "short") filter(., cv_type == cv) else . } %>%
   detailed_entries(what = Position,
                    when = Year,
                    where = Institution, 
@@ -50,13 +51,12 @@ if(language == "en"){
 ```
 
 ```{r education}
-read_sheet(data_path, sheet = "Education") %>% 
+readWorkbook(wb, sheet = "Education") %>% 
   filter(lang == language) %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
   detailed_entries(what = Degree,
                           when = Year,
                           where = Institution, 
-                          with = Location, 
                           why = Details)
 ```
 
@@ -70,7 +70,7 @@ if(language == "en"){
 
 ```{r grants}
 options(Encoding="UTF-8")
-read_sheet(data_path, sheet = "Grants") %>% 
+readWorkbook(wb, sheet = "Grants") %>% 
   filter(lang == language) %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
   detailed_entries(what = Grants,
@@ -89,23 +89,31 @@ read_sheet(data_path, sheet = "Grants") %>%
 
 ```{r papers, results='asis'}
 
+publications <- readWorkbook(wb, sheet = "Publications") %>% 
+  filter(lang == language) %>% 
+  { if(cv == "short") filter(., cv_type == cv) else .}
+
+if(language == "en"){
+  cat("## Books \n")
+} else {
+  cat("## Ouvrages \n")
+}
+
+books <- publications %>% 
+  filter(category == "BOOK" & type == "published") %>% 
+  pull(reference)
+
+cat(paste(books), sep = "\n\n")
+cat("\n")
+
 if(language == "en"){
   cat("## Publications in peer-reviewed journals \n")
 } else {
   cat("## Publications dans des journaux à comité de lecture \n")
 }
-publications <- read_sheet(data_path, sheet = "Publications") %>% 
-  filter(lang == language) %>% 
-  { if(cv == "short") filter(., cv_type == cv) else .}
 
-if(cnrs_rank == TRUE){
- if(language == "en") cnrs_message <- " (CNRS ranking June 2020, Rank "
- if(language == "fr") cnrs_message <- " (class. CNRS juin 2020, rang "
-}  
 peer_review <- publications %>% 
-  filter(type == "published") %>% 
-  { if(cnrs_rank == TRUE) left_join(., read_sheet(data_path, sheet = "CNRS_ranking"), by = "journal") %>% 
-      mutate(reference = paste0(reference, cnrs_message, rank, ")" )) else . } %>% 
+  filter(type == "published"  & category != "BOOK") %>% 
   pull(reference)
 
 cat(paste(peer_review), sep = "\n\n")
@@ -182,7 +190,7 @@ if(language == "en"){
 
 ```{r teaching}
 options(Encoding="UTF-8")
-read_sheet(data_path, sheet = "Teaching") %>% 
+readWorkbook(wb, sheet = "Teaching") %>% 
   filter(lang == language) %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
   detailed_entries(what = Course,
@@ -206,7 +214,7 @@ if(language == "en"){
 }
 
 options(Encoding="UTF-8")
-read_sheet(data_path, sheet = "Activities") %>% 
+readWorkbook(wb, sheet = "Activities")  %>% 
   filter(lang == language,
          activity_type == "revues") %>% 
   { if(cv == "short") filter(., cv_type == cv) else . } %>%
@@ -215,39 +223,7 @@ read_sheet(data_path, sheet = "Activities") %>%
                    where = Content,
                   .protect = FALSE)
 
-if(language == "en"){
-  cat("## Seminars and Conferences Organization\n")
-} else {
-  cat("## Organisation de conférences et séminaires\n")
-}
 
-options(Encoding="UTF-8")
-read_sheet(data_path, sheet = "Activities") %>% 
-  filter(lang == language,
-         activity_type == "conferences") %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
-  detailed_entries(when = Year,
-                   what = Activity,
-                   where = Content,
-                   why = Details,
-                  .protect = FALSE)
-
-if(language == "en"){
-  cat("## Administrative Responsibilities\n")
-} else {
-  cat("## Fonctions électives\n")
-}
-
-options(Encoding="UTF-8")
-read_sheet(data_path, sheet = "Activities") %>% 
-  filter(lang == language,
-         activity_type == "elective") %>% 
-  { if(cv == "short") filter(., cv_type == cv) else . } %>%
-  detailed_entries(when = Year,
-                   what = Activity,
-                   where = Content,
-                   why = Details,
-                   .protect = FALSE)
 ```
 
 \leavevmode\newline
